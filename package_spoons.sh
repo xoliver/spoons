@@ -2,21 +2,23 @@
 
 # Set source and destination directories
 SRC_DIR="src"
-DIST_DIR="Spoons"
+ZIP_DIR="Spoons"
 
-# Create dist directory if it doesn't exist
-mkdir -p "$DIST_DIR"
+# Ensure destination directory exists
+mkdir -p "$ZIP_DIR"
 
-# Loop over each subdirectory in src
+# Loop through each folder in SRC_DIR
 for dir in "$SRC_DIR"/*/; do
-    # Check if it is a directory
-    if [ -d "$dir" ]; then
-        # Get the name of the subdirectory without the path
-        folder_name=$(basename "$dir")
-        # Create the zip file in dist with the same folder name
-        zip -r "$DIST_DIR/$folder_name.zip" "$dir"
-		echo "Zipped $folder_name"
-    fi
-done
+    folder_name=$(basename "$dir")
 
-echo "Zipping complete."
+	# zip_path="$ZIP_DIR/$folder_name.zip"
+
+    # Remove existing zip if it exists
+    # [ -f "$zip_path" ] && rm "$zip_path"
+
+    # Go to the parent directory of the folder, then zip the folder itself
+    (
+        cd "$SRC_DIR" || exit
+        zip -r "../$ZIP_DIR/$folder_name.zip" "$folder_name"
+    )
+done
