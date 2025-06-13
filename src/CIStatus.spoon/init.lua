@@ -40,14 +40,13 @@ function obj:init()
     if self.logoPath then
         self:_setMenubarIcon(self.logoPath)
     end
-    self.menubar:setTitle("🔴") -- Default to red until we fetch statuses
+    self.menubar:setTitle("⏳")
 end
 
 --- CIStatus:start()
 --- Method
 --- Starts monitoring the CI pipeline.
 function obj:start()
-    self.menubar:setTitle("⏳")
     hs.timer.doAfter(3, function() self:_updateMenu() end)
     -- Refresh every 5 minutes
     self.timer = hs.timer.doEvery(self.refreshSeconds, function() self:_updateMenu() end)
