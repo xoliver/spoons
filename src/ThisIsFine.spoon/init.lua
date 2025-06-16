@@ -90,7 +90,6 @@ function obj:updateMenu()
         return
     end
     local hasIncidents = self.incidents and #self.incidents > 0
-    -- Only show fire emoji if any incident is less than threshold hours old
     local showFire = false
     local threshold = (self.incidentAgeThresholdHours or 24) * 3600
     if hasIncidents then
@@ -119,14 +118,38 @@ function obj:updateMenu()
             return string.format("(%dd)", math.floor(diff/86400))
         end
     end
-    for _, incident in ipairs(self.incidents) do
-        local name = incident.summary or incident.title or "(no summary)"
-        local ago = how_long_ago_string(incident._how_long_ago)
-        table.insert(menu, {
-            title = string.format("%s %s", name, ago),
-            fn = function() hs.urlevent.openURL(incident.html_url or ("https://pagerduty.com/incidents/" .. incident.id)) end
-        })
+    local function add_incident_group_to_menu(group)
+        if #group == 0 then
+            table.insert(menu, { title = "This is fine", disabled = true })
+        else
+            for _, incident in ipairs(group) do
+                local name = incident.summary or incident.title or "(no summary)"
+                local ago = how_long_ago_string(incident._how_long_ago)
+                local id = incident.id or "?"
+                table.insert(menu, {
+                    title = string.format("%s %s", name, ago),
+                    fn = function() hs.urlevent.openURL(incident.html_url or ("https://pagerduty.com/incidents/" .. id)) end
+                })
+            end
+        end
     end
+    -- Separate incidents into recent and old
+    local recent = {}
+    local old = {}
+    for _, incident in ipairs(self.incidents) do
+        if incident._how_long_ago and incident._how_long_ago < threshold then
+            table.insert(recent, incident)
+        else
+            table.insert(old, incident)
+        end
+    end
+    table.insert(menu, { title = "On fire", disabled = true })
+    -- Add recent incidents
+    add_incident_group_to_menu(recent)
+    -- Separator
+    table.insert(menu, { title = "Older", disabled = true })
+    -- Add old incidents
+    add_incident_group_to_menu(old)
     self.menubar:setMenu(menu)
 end
 
