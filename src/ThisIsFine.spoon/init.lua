@@ -134,7 +134,6 @@ function obj:configure(cfg)
     self.apiKey = cfg.apiKey
     self.serviceIds = cfg.serviceIds
     self.incidentAgeThresholdHours = cfg.incidentAgeThresholdHours or 24
-    -- Do not call self:refresh() here
 end
 
 function obj:start()
