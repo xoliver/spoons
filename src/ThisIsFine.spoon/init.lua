@@ -143,13 +143,20 @@ function obj:updateMenu()
             table.insert(old, incident)
         end
     end
-    table.insert(menu, { title = "On fire", disabled = true })
-    -- Add recent incidents
-    add_incident_group_to_menu(recent)
-    -- Separator
-    table.insert(menu, { title = "Older", disabled = true })
-    -- Add old incidents
-    add_incident_group_to_menu(old)
+
+    if #recent > 0 then
+        add_incident_group_to_menu(recent)
+    end
+
+    if #old > 0 then
+        table.insert(menu, { title = "Older", disabled = true })
+        add_incident_group_to_menu(old)
+    end
+
+    if #menu == 0 then
+        table.insert(menu, { title = "This is actually fine!", disabled = true })
+    end
+
     self.menubar:setMenu(menu)
 end
 
